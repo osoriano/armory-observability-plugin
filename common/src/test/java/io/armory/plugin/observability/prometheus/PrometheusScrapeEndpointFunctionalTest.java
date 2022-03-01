@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.armory.plugin.observability.prometheus.PrometheusScrapeEndpoint;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Timer;
@@ -33,8 +32,6 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -117,7 +114,7 @@ public class PrometheusScrapeEndpointFunctionalTest {
     // use length since, order is non-deterministic
     // Since multiple HELP/TYPE will be removed we are expecting the length to be equal to
     // the original - length(chars to be removed)
-    String duplicate="# HELP foo_total  \n# TYPE foo_total counter ";
-    assertEquals(expectedContent.length()-duplicate.length(), responseEntity.getBody().length());
+    String duplicate = "# HELP foo_total  \n# TYPE foo_total counter ";
+    assertEquals(expectedContent.length() - duplicate.length(), responseEntity.getBody().length());
   }
 }
