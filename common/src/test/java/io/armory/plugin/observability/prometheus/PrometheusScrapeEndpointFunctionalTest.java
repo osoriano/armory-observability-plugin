@@ -17,7 +17,6 @@
 package io.armory.plugin.observability.prometheus;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -74,13 +73,8 @@ public class PrometheusScrapeEndpointFunctionalTest {
             .getResource("io/armory/plugin/observability/prometheus/expected-scrape.txt");
     var expectedContent = Files.readString(Path.of(expectedScrapeResource.toURI()));
 
-    var responseEntity = sut.scrape();
-    assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-    //noinspection ConstantConditions
-    assertEquals(
-        "text/plain;version=0.0.4;charset=utf-8",
-        responseEntity.getHeaders().getContentType().toString());
-    assertEquals(expectedContent, responseEntity.getBody());
+    var response = sut.scrape();
+    assertEquals(expectedContent, response);
   }
 
   /**
@@ -105,16 +99,11 @@ public class PrometheusScrapeEndpointFunctionalTest {
 
     registry.counter("foo", tagsWithMissingTag).increment();
     registry.counter("foo", fullCollectionOfTags).increment();
-    var responseEntity = sut.scrape();
-    assertTrue(responseEntity.getStatusCode().is2xxSuccessful());
-    //noinspection ConstantConditions
-    assertEquals(
-        "text/plain;version=0.0.4;charset=utf-8",
-        responseEntity.getHeaders().getContentType().toString());
+    var response = sut.scrape();
     // use length since, order is non-deterministic
     // Since multiple HELP/TYPE will be removed we are expecting the length to be equal to
     // the original - length(chars to be removed)
     String duplicate = "# HELP foo_total  \n# TYPE foo_total counter ";
-    assertEquals(expectedContent.length() - duplicate.length(), responseEntity.getBody().length());
+    assertEquals(expectedContent.length() - duplicate.length(), response.length());
   }
 }

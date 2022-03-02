@@ -83,6 +83,7 @@ subprojects { subProject ->
         testImplementation "org.mockito:mockito-core:2.+"
         testImplementation 'org.springframework:spring-test:5.1.7.RELEASE'
         testImplementation 'org.springframework.boot:spring-boot-test:2.1.5.RELEASE'
+        testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure:2.2.13.RELEASE'
         testImplementation 'org.springframework.vault:spring-vault-core:2.1.2.RELEASE'
         testImplementation(group: 'org.pf4j', name: 'pf4j', version: "${pf4jVersion}")
         testImplementation(group: 'io.spinnaker.kork', name: 'kork-plugins-api', version: "${korkVersion}")
@@ -93,6 +94,7 @@ subprojects { subProject ->
         testImplementation "org.mock-server:mockserver-junit-rule:5.10.0"
         testImplementation "org.testcontainers:testcontainers:1.14.3"
         testImplementation 'io.rest-assured:rest-assured:4.3.0'
+        testImplementation 'com.google.code.gson:gson:2.8.6'
     }
 
     group = "io.armory.plugins.metrics"

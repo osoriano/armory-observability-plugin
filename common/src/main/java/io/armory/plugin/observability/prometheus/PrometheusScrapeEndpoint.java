@@ -16,29 +16,21 @@
 
 package io.armory.plugin.observability.prometheus;
 
-import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Enumeration;
-import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint;
 
 /**
- * Port of PrometheusScrapeEndpoint but rather than being an web endpoint that won't work with
- * plugins, it will be an endpoint
+ * Port of PrometheusScrapeEndpoint
  *
  * <p>See:
- * https://github.com/spring-projects/spring-boot/blob/cd1baf18fe9ec71c11d7d131d6f1a417ec0c00e2/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/metrics/export/prometheus/PrometheusScrapeEndpoint.java
+ * https://github.com/spring-projects/spring-boot/blob/2.2.x/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/metrics/export/prometheus/PrometheusScrapeEndpoint.java
  */
-// If you use WebEndpoint instead of Endpoint, the plugin throws class def not found error with PF4j
-// ¯\_(ツ)_/¯
-@Endpoint(id = "aop-prometheus")
+@WebEndpoint(id = "aop-prometheus")
 public class PrometheusScrapeEndpoint {
 
   private final CollectorRegistry collectorRegistry;
@@ -47,22 +39,12 @@ public class PrometheusScrapeEndpoint {
     this.collectorRegistry = collectorRegistry;
   }
 
-  // If you use produces = TextFormat.CONTENT_TYPE_004, for some reason the accept header is ignored
-  // and a 406 is returned :/
-  // So we will use ResponseEntity<String> and set the content type manually.
-  @ReadOperation()
-  public ResponseEntity<String> scrape() {
+  @ReadOperation(produces = TextFormat.CONTENT_TYPE_004)
+  public String scrape() {
     try {
       Writer writer = new StringWriter();
-      Enumeration<Collector.MetricFamilySamples> samples =
-          this.collectorRegistry.metricFamilySamples();
-      TextFormat.write004(writer, samples);
-
-      var responseHeaders = new HttpHeaders();
-      responseHeaders.set("Content-Type", TextFormat.CONTENT_TYPE_004);
-      TextFormat.write004(writer, samples);
-
-      return new ResponseEntity<>(writer.toString(), responseHeaders, HttpStatus.OK);
+      TextFormat.write004(writer, this.collectorRegistry.metricFamilySamples());
+      return writer.toString();
     } catch (IOException ex) {
       // This actually never happens since StringWriter::write() doesn't throw any
       // IOException
